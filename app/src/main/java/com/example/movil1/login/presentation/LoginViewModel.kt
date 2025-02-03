@@ -81,8 +81,12 @@ class LoginViewModel(
 
                 when (val result = loginRepository.login(email, password)) {
                     is LoginRepository.Result.Success -> {
+                        Log.d("LoginViewModel", "Respuesta exitosa del servidor") // <-- Nuevo log
+                        Log.d("LoginViewModel",result.data.toString())
                         result.data.access_token.let { token ->
+                            Log.d("LoginViewModel", "Token recibido: $token")  // <-- Nuevo log
                             tokenManager.saveToken(token)
+                            Log.d("LoginViewModel", "Token guardado en TokenManager")  // <-- Nuevo log
                             _uiState.value = UiState.Success(token)
                             clearFields()
                         }

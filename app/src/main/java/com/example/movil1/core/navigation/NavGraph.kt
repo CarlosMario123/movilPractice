@@ -10,6 +10,8 @@ import androidx.navigation.compose.composable
 import com.example.movil1.login.presentation.LoginScreen
 import com.example.movil1.login.presentation.LoginViewModelFactory
 import com.example.movil1.register.presentation.RegisterScreen
+import com.example.movil1.taskCreate.presentation.TaskCreateScreen
+import com.example.movil1.taskCreate.presentation.TaskCreateViewModelFactory
 
 @Composable
 fun NavGraph(
@@ -25,6 +27,13 @@ fun NavGraph(
                 onNavigateToRegister = {
                     navController.navigate(Destinations.Register.route)
                 },
+                onLoginSuccess = {
+                    navController.navigate(Destinations.CreateTask.route) {
+                        // Limpia el stack de navegación para que el usuario no pueda
+                        // volver al login usando el botón back
+                        popUpTo(Destinations.Login.route) { inclusive = true }
+                    }
+                },
                 viewModel = viewModel(
                     factory = LoginViewModelFactory(LocalContext.current)
                 )
@@ -38,6 +47,17 @@ fun NavGraph(
                     navController.navigate(Destinations.Login.route) {
                         popUpTo(Destinations.Register.route) { inclusive = true }
                     }
+                }
+            )
+        }
+
+        composable(route = Destinations.CreateTask.route) {
+            TaskCreateScreen(
+                viewModel = viewModel(
+                    factory = TaskCreateViewModelFactory(LocalContext.current)
+                ),
+                onNavigateBack = {
+                    navController.popBackStack()
                 }
             )
         }

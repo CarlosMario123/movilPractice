@@ -1,9 +1,7 @@
-package com.example.movil1.login.presentation
+package com.example.movil1.taskCreate.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,8 +14,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -41,28 +39,37 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.movil1.R
+import com.example.movil1.core.storage.TokenManager
 import com.example.movil1.ui.theme.AppTheme
 
 @Composable
-fun LoginScreen(
-    onNavigateToRegister: () -> Unit = {},
-    onLoginSuccess: () -> Unit = {},
-    viewModel: LoginViewModel
+fun TaskCreateScreen(
+    viewModel: TaskCreateViewModel,
+    onNavigateBack: () -> Unit = {}
 ) {
-    val email by viewModel.email.observeAsState("")
-    val password by viewModel.password.observeAsState("")
-    val uiState by viewModel.uiState.observeAsState(LoginViewModel.UiState.Initial)
-    val emailError by viewModel.emailError.observeAsState(null)
-    val passwordError by viewModel.passwordError.observeAsState(null)
+    val title by viewModel.title.observeAsState("")
+    val description by viewModel.description.observeAsState("")
+    val uiState by viewModel.uiState.observeAsState(TaskCreateViewModel.UiState.Initial)
+    val titleError by viewModel.titleError.observeAsState(null)
+    val descriptionError by viewModel.descriptionError.observeAsState(null)
+
+    val tokenManager = TokenManager(LocalContext.current)
+    val currentToken = remember { tokenManager.getToken() }
 
     val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        if (currentToken.isNullOrEmpty()) {
+            snackbarHostState.showSnackbar("No hay token de autenticación")
+            onNavigateBack()
+        }
+    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -86,7 +93,7 @@ fun LoginScreen(
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
                     Text(
-                        text = "Welcome",
+                        text = "Crear Tarea",
                         style = MaterialTheme.typography.headlineMedium,
                         color = MaterialTheme.colorScheme.secondary,
                         fontSize = 48.sp,
@@ -95,24 +102,28 @@ fun LoginScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    Image(
-                        painter = painterResource(id = R.drawable.task),
-                        contentDescription = "task",
+                    // Token display
+                    Text(
+                        text = "Token: ${currentToken?.take(20)}...",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.7f),
                         modifier = Modifier
-                            .width(260.dp)
-                            .height(260.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
-                            .padding(20.dp)
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                shape = MaterialTheme.shapes.small
+                            )
+                            .padding(8.dp)
                     )
 
                     Spacer(modifier = Modifier.height(5.dp))
 
                     OutlinedTextField(
-                        value = email,
-                        onValueChange = { viewModel.onEmailChanged(it) },
-                        isError = emailError != null,
-                        label = { Text("Email") },
+                        value = title,
+                        onValueChange = { viewModel.onTitleChanged(it) },
+                        isError = titleError != null,
+                        label = { Text("Título") },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
@@ -122,12 +133,12 @@ fun LoginScreen(
                             unfocusedBorderColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
                         ),
                         leadingIcon = {
-                            Icon(Icons.Default.Email, contentDescription = "email")
+                            Icon(Icons.Default.Create, contentDescription = "título")
                         },
                         supportingText = {
-                            if (emailError != null) {
+                            if (titleError != null) {
                                 Text(
-                                    text = emailError!!,
+                                    text = titleError!!,
                                     color = MaterialTheme.colorScheme.error
                                 )
                             }
@@ -135,26 +146,25 @@ fun LoginScreen(
                     )
 
                     OutlinedTextField(
-                        value = password,
-                        onValueChange = { viewModel.onPasswordChanged(it) },
-                        isError = passwordError != null,
-                        label = { Text("Password") },
+                        value = description,
+                        onValueChange = { viewModel.onDescriptionChanged(it) },
+                        isError = descriptionError != null,
+                        label = { Text("Descripción") },
                         modifier = Modifier
                             .fillMaxWidth()
+                            .height(120.dp)
                             .padding(horizontal = 16.dp),
-                        visualTransformation = PasswordVisualTransformation(),
-                        singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = MaterialTheme.colorScheme.primary,
                             unfocusedBorderColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
                         ),
                         leadingIcon = {
-                            Icon(Icons.Default.Lock, contentDescription = "password")
+                            Icon(Icons.Default.Edit, contentDescription = "descripción")
                         },
                         supportingText = {
-                            if (passwordError != null) {
+                            if (descriptionError != null) {
                                 Text(
-                                    text = passwordError!!,
+                                    text = descriptionError!!,
                                     color = MaterialTheme.colorScheme.error
                                 )
                             }
@@ -162,8 +172,8 @@ fun LoginScreen(
                     )
 
                     Button(
-                        onClick = { viewModel.onLoginClick() },
-                        enabled = uiState !is LoginViewModel.UiState.Loading,
+                        onClick = { viewModel.onCreateTaskClick() },
+                        enabled = uiState !is TaskCreateViewModel.UiState.Loading,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp)
@@ -173,44 +183,33 @@ fun LoginScreen(
                             containerColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
-                        if (uiState is LoginViewModel.UiState.Loading) {
+                        if (uiState is TaskCreateViewModel.UiState.Loading) {
                             CircularProgressIndicator(
                                 color = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.size(24.dp)
                             )
                         } else {
                             Text(
-                                "Login",
+                                "Crear Tarea",
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
                         }
                     }
-
-                    Text(
-                        text = "Create new account",
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .noRippleClickable { onNavigateToRegister() },
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Medium
-                        )
-                    )
                 }
             }
 
             LaunchedEffect(uiState) {
                 when (uiState) {
-                    is LoginViewModel.UiState.Success -> {
+                    is TaskCreateViewModel.UiState.Success -> {
                         snackbarHostState.showSnackbar(
-                            message = "Login exitoso"
+                            message = "Tarea creada exitosamente"
                         )
-                        onLoginSuccess()
+                        onNavigateBack()
                     }
-                    is LoginViewModel.UiState.Error -> {
+                    is TaskCreateViewModel.UiState.Error -> {
                         snackbarHostState.showSnackbar(
-                            message = (uiState as LoginViewModel.UiState.Error).message
+                            message = (uiState as TaskCreateViewModel.UiState.Error).message
                         )
                     }
                     else -> {}
@@ -220,24 +219,15 @@ fun LoginScreen(
     }
 }
 
-@Composable
-fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier = this.clickable(
-    indication = null,
-    interactionSource = remember { MutableInteractionSource() }
-) {
-    onClick()
-}
-
 @Preview(showBackground = true)
 @Composable
-fun LoginScreenPreview() {
+fun TaskCreateScreenPreview() {
     AppTheme {
-        LoginScreen(
-            onNavigateToRegister = {},
-            onLoginSuccess = {},
+        TaskCreateScreen(
             viewModel = viewModel(
-                factory = LoginViewModelFactory(LocalContext.current)
-            )
+                factory = TaskCreateViewModelFactory(LocalContext.current)
+            ),
+            onNavigateBack = {}
         )
     }
 }

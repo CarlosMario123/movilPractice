@@ -1,19 +1,20 @@
-import android.util.Log
+package com.example.movil1.taskCreate.data.repository
+
 import com.example.movil1.core.network.RetrofitHelper
-import com.example.movil1.login.data.mapper.LoginMapper
-import com.example.movil1.login.data.model.LoginDTO
-import com.example.movil1.login.data.model.LoginRequest
-import com.example.movil1.login.data.model.LoginResponse
+import com.example.movil1.core.storage.TokenManager
+import com.example.movil1.taskCreate.data.mapper.TaskCreateMapper
+import com.example.movil1.taskCreate.data.models.CreateTaskRequest
+import com.example.movil1.taskCreate.data.models.TaskCreateDto
+import com.example.movil1.taskCreate.data.models.TaskResponse
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
 
-class LoginRepository {
-    private val loginApi = RetrofitHelper.getLoginApi()
+class TaskCreateRepository(private val tokenManager: TokenManager) {
+    private val taskApi = RetrofitHelper.getTaskApi(tokenManager)
     private val gson = Gson()
 
-    // Result wrapper for success and error cases
     sealed class Result<out T> {
         data class Success<T>(val data: T) : Result<T>()
         sealed class Error : Result<Nothing>() {
@@ -28,13 +29,13 @@ class LoginRepository {
         val errors: List<String>? = null
     )
 
-    suspend fun login(email: String, password: String): Result<LoginDTO> {
+    suspend fun createTask(title: String, description: String): Result<TaskCreateDto> {
         return withContext(Dispatchers.IO) {
             try {
-                // Realiza la solicitud de login
-                val response = loginApi.login(LoginRequest(email,password))
-                handleApiResponse(response) { loginResponse ->
-                    LoginMapper.toLoginDTO(loginResponse)
+                val request = CreateTaskRequest(title, description)
+                val response = taskApi.createTask(request)
+                handleApiResponse<TaskResponse, TaskCreateDto>(response) { taskResponse ->
+                    TaskCreateMapper.mapToDto(taskResponse)
                 }
             } catch (e: Exception) {
                 Result.Error.NetworkError("Error de red: ${e.message}")
@@ -42,7 +43,6 @@ class LoginRepository {
         }
     }
 
-    // This function handles the response from the API and maps it
     private fun <T, R> handleApiResponse(
         response: Response<T>,
         transform: (T) -> R
@@ -50,7 +50,7 @@ class LoginRepository {
         return when (response.code()) {
             in 200..299 -> {
                 response.body()?.let {
-                    Result.Success(transform(it)) // Aquí aseguramos que el tipo devuelto sea LoginDTO
+                    Result.Success(transform(it))
                 } ?: Result.Error.ServerError(500, "Respuesta vacía del servidor")
             }
             400 -> {

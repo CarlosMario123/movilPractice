@@ -93,7 +93,7 @@ fun RegisterScreen(
                     )
 
                     Image(
-                        painter = painterResource(id = R.drawable.shop),
+                        painter = painterResource(id = R.drawable.task),
                         contentDescription = "shop",
                         modifier = Modifier
                             .width(260.dp)
