@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.movil1.R
 import com.example.movil1.core.storage.TokenManager
+import com.example.movil1.shared.components.TextToken
 import com.example.movil1.ui.theme.AppTheme
 
 @Composable
@@ -102,20 +103,8 @@ fun TaskCreateScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    // Token display
-                    Text(
-                        text = "Token: ${currentToken?.take(20)}...",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.7f),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.surfaceVariant,
-                                shape = MaterialTheme.shapes.small
-                            )
-                            .padding(8.dp)
-                    )
+                    currentToken?.take(20)?.let { TextToken(it) }//Es como un condicional si esta listo renderiza
+
 
                     Spacer(modifier = Modifier.height(5.dp))
 
