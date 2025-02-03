@@ -10,9 +10,9 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface RegisterApi {
-    @GET("usuarios/{usuario_id}")
-    suspend fun validateUsername(@Path("usuario_id") usuarioId: String): Response<UsernameValidateDTO>
+    @GET("check-email/{email}")
+    suspend fun validateUsername(@Path("email") usuarioId: String): Response<UsernameValidateDTO>
 
-    @POST("usuarios/")
+    @POST("register")
     suspend fun createUser(@Body request: CreateUserRequest): Response<UserDTO>
 }

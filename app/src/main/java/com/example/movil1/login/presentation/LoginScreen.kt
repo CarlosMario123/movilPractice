@@ -1,8 +1,9 @@
-package com.example.movil1.register.presentation
+package com.example.movil1.login.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,27 +38,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+
 import com.example.movil1.R
-import com.example.movil1.ui.theme.AppTheme
 
 @Composable
-fun RegisterScreen(
-    viewModel: RegisterViewModel = viewModel(),
-    onNavigateToLogin: () -> Unit = {}
+fun LoginScreen(
+    onNavigateToRegister: () -> Unit = {},
+    viewModel: LoginViewModel
 ) {
     val email by viewModel.email.observeAsState("")
     val password by viewModel.password.observeAsState("")
-    val uiState by viewModel.uiState.observeAsState(RegisterViewModel.UiState.Initial)
+    val uiState by viewModel.uiState.observeAsState(LoginViewModel.UiState.Initial)
     val emailError by viewModel.emailError.observeAsState(null)
+    val passwordError by viewModel.passwordError.observeAsState(null)
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -83,13 +82,11 @@ fun RegisterScreen(
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
                     Text(
-                        text = "Create Account",
+                        text = "Welcome Back",
                         style = MaterialTheme.typography.headlineMedium,
                         color = MaterialTheme.colorScheme.secondary,
                         fontSize = 48.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
+                        fontWeight = FontWeight.ExtraBold
                     )
 
                     Image(
@@ -112,12 +109,7 @@ fun RegisterScreen(
                         label = { Text("Email") },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .onFocusChanged {
-                                if (!it.isFocused) {
-                                    viewModel.onEmailFocusLost()
-                                }
-                            },
+                            .padding(horizontal = 16.dp),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -139,6 +131,7 @@ fun RegisterScreen(
                     OutlinedTextField(
                         value = password,
                         onValueChange = { viewModel.onPasswordChanged(it) },
+                        isError = passwordError != null,
                         label = { Text("Password") },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -151,12 +144,20 @@ fun RegisterScreen(
                         ),
                         leadingIcon = {
                             Icon(Icons.Default.Lock, contentDescription = "password")
+                        },
+                        supportingText = {
+                            if (passwordError != null) {
+                                Text(
+                                    text = passwordError!!,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
                         }
                     )
 
                     Button(
-                        onClick = { viewModel.onRegisterClick() },
-                        enabled = uiState !is RegisterViewModel.UiState.Loading,
+                        onClick = { viewModel.onLoginClick() },
+                        enabled = uiState !is LoginViewModel.UiState.Loading,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp)
@@ -166,14 +167,14 @@ fun RegisterScreen(
                             containerColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
-                        if (uiState is RegisterViewModel.UiState.Loading) {
+                        if (uiState is LoginViewModel.UiState.Loading) {
                             CircularProgressIndicator(
                                 color = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.size(24.dp)
                             )
                         } else {
                             Text(
-                                "Continue",
+                                "Login",
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
@@ -181,29 +182,23 @@ fun RegisterScreen(
                     }
 
                     Text(
-                        text = "I have account",
-                        modifier = Modifier
-                            .clickable { onNavigateToLogin() }
-                            .padding(8.dp),
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Medium
-                        )
+                        text = "Create new account",
+                        modifier = Modifier.padding(16.dp)
+                            .noRippleClickable { onNavigateToRegister() }
                     )
                 }
             }
 
             LaunchedEffect(uiState) {
                 when (uiState) {
-                    is RegisterViewModel.UiState.Success -> {
+                    is LoginViewModel.UiState.Success -> {
                         snackbarHostState.showSnackbar(
-                            message = "Usuario registrado exitosamente"
+                            message = "Login exitoso"
                         )
-                        onNavigateToLogin()
                     }
-                    is RegisterViewModel.UiState.Error -> {
+                    is LoginViewModel.UiState.Error -> {
                         snackbarHostState.showSnackbar(
-                            message = (uiState as RegisterViewModel.UiState.Error).message
+                            message = (uiState as LoginViewModel.UiState.Error).message
                         )
                     }
                     else -> {}
@@ -213,12 +208,12 @@ fun RegisterScreen(
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun RegisterScreenPreview() {
-    AppTheme {
-        RegisterScreen(
-            onNavigateToLogin = {}
-        )
-    }
+fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier = this.clickable(
+    indication = null,
+    interactionSource = remember { MutableInteractionSource() }
+) {
+    onClick()
 }
+
+

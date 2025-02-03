@@ -1,20 +1,18 @@
-package com.example.movil1.register.data.repository
-
 import com.example.movil1.core.network.RetrofitHelper
-import com.example.movil1.register.data.model.CreateUserRequest
-import com.example.movil1.register.data.model.UserDTO
+import com.example.movil1.login.data.mapper.LoginMapper
+import com.example.movil1.login.data.model.LoginDTO
+import com.example.movil1.login.data.model.LoginRequest
+import com.example.movil1.login.data.model.LoginResponse
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
 
-/**
- * Repositorio que maneja las operaciones de registro de usuarios.
- */
-class RegisterRepository {
-    private val registerApi = RetrofitHelper.getRetrofit()
+class LoginRepository {
+    private val loginApi = RetrofitHelper.getLoginApi()
     private val gson = Gson()
 
+    // Result wrapper for success and error cases
     sealed class Result<out T> {
         data class Success<T>(val data: T) : Result<T>()
         sealed class Error : Result<Nothing>() {
@@ -29,28 +27,22 @@ class RegisterRepository {
         val errors: List<String>? = null
     )
 
-    suspend fun validateEmail(email: String): Result<Boolean> {
+    suspend fun login(email: String, password: String): Result<LoginDTO> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = registerApi.validateUsername(email)
-                handleApiResponse(response) { it.success }
+                // Realiza la solicitud de login
+                val response = loginApi.login(LoginRequest(email,password))
+                handleApiResponse(response) { loginResponse ->
+                    // Mapear la respuesta de la API (LoginResponse) a LoginDTO
+                    LoginMapper.toLoginDTO(loginResponse) // Esto devuelve LoginDTO
+                }
             } catch (e: Exception) {
                 Result.Error.NetworkError("Error de red: ${e.message}")
             }
         }
     }
 
-    suspend fun createUser(request: CreateUserRequest): Result<UserDTO> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val response = registerApi.createUser(request)
-                handleApiResponse(response) { it }
-            } catch (e: Exception) {
-                Result.Error.NetworkError("Error al crear el usuario: ${e.message}")
-            }
-        }
-    }
-
+    // This function handles the response from the API and maps it
     private fun <T, R> handleApiResponse(
         response: Response<T>,
         transform: (T) -> R
@@ -58,7 +50,7 @@ class RegisterRepository {
         return when (response.code()) {
             in 200..299 -> {
                 response.body()?.let {
-                    Result.Success(transform(it))
+                    Result.Success(transform(it)) // Aquí aseguramos que el tipo devuelto sea LoginDTO
                 } ?: Result.Error.ServerError(500, "Respuesta vacía del servidor")
             }
             400 -> {
