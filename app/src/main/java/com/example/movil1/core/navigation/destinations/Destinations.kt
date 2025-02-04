@@ -1,4 +1,4 @@
-package com.example.movil1.core.navigation
+package com.example.movil1.core.navigation.destinations
 
 
 sealed class Destinations(val route: String) {

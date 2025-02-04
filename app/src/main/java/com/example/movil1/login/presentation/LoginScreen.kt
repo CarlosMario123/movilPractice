@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.movil1.R
+import com.example.movil1.shared.components.LoadingOverlay
 import com.example.movil1.ui.theme.AppTheme
 
 @Composable
@@ -67,137 +68,144 @@ fun LoginScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            Box(
+        Box(modifier = Modifier.fillMaxSize()) {
+            Surface(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp)
+                    .padding(paddingValues),
+                color = MaterialTheme.colorScheme.background
             ) {
-                Column(
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(24.dp)
+                        .fillMaxSize()
+                        .padding(16.dp)
                 ) {
-                    Text(
-                        text = "Welcome",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.secondary,
-                        fontSize = 48.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Image(
-                        painter = painterResource(id = R.drawable.task),
-                        contentDescription = "task",
-                        modifier = Modifier
-                            .width(260.dp)
-                            .height(260.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
-                            .padding(20.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(5.dp))
-
-                    OutlinedTextField(
-                        value = email,
-                        onValueChange = { viewModel.onEmailChanged(it) },
-                        isError = emailError != null,
-                        label = { Text("Email") },
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
-                        ),
-                        leadingIcon = {
-                            Icon(Icons.Default.Email, contentDescription = "email")
-                        },
-                        supportingText = {
-                            if (emailError != null) {
-                                Text(
-                                    text = emailError!!,
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                            }
-                        }
-                    )
-
-                    OutlinedTextField(
-                        value = password,
-                        onValueChange = { viewModel.onPasswordChanged(it) },
-                        isError = passwordError != null,
-                        label = { Text("Password") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        visualTransformation = PasswordVisualTransformation(),
-                        singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
-                        ),
-                        leadingIcon = {
-                            Icon(Icons.Default.Lock, contentDescription = "password")
-                        },
-                        supportingText = {
-                            if (passwordError != null) {
-                                Text(
-                                    text = passwordError!!,
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                            }
-                        }
-                    )
-
-                    Button(
-                        onClick = { viewModel.onLoginClick() },
-                        enabled = uiState !is LoginViewModel.UiState.Loading,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                            .padding(horizontal = 16.dp),
-                        shape = MaterialTheme.shapes.medium,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
-                        )
+                            .align(Alignment.Center),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(24.dp)
                     ) {
-                        if (uiState is LoginViewModel.UiState.Loading) {
-                            CircularProgressIndicator(
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        } else {
-                            Text(
-                                "Login",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
-                    }
-
-                    Text(
-                        text = "Create new account",
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .noRippleClickable { onNavigateToRegister() },
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Medium
+                        Text(
+                            text = "Welcome",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.secondary,
+                            fontSize = 48.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
                         )
-                    )
+
+                        Image(
+                            painter = painterResource(id = R.drawable.task),
+                            contentDescription = "task",
+                            modifier = Modifier
+                                .width(260.dp)
+                                .height(260.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
+                                .padding(20.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(5.dp))
+
+                        OutlinedTextField(
+                            value = email,
+                            onValueChange = { viewModel.onEmailChanged(it) },
+                            isError = emailError != null,
+                            label = { Text("Email") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
+                            ),
+                            leadingIcon = {
+                                Icon(Icons.Default.Email, contentDescription = "email")
+                            },
+                            supportingText = {
+                                if (emailError != null) {
+                                    Text(
+                                        text = emailError!!,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            }
+                        )
+
+                        OutlinedTextField(
+                            value = password,
+                            onValueChange = { viewModel.onPasswordChanged(it) },
+                            isError = passwordError != null,
+                            label = { Text("Password") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            visualTransformation = PasswordVisualTransformation(),
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
+                            ),
+                            leadingIcon = {
+                                Icon(Icons.Default.Lock, contentDescription = "password")
+                            },
+                            supportingText = {
+                                if (passwordError != null) {
+                                    Text(
+                                        text = passwordError!!,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            }
+                        )
+
+                        Button(
+                            onClick = { viewModel.onLoginClick() },
+                            enabled = uiState !is LoginViewModel.UiState.Loading,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .padding(horizontal = 16.dp),
+                            shape = MaterialTheme.shapes.medium,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            if (uiState is LoginViewModel.UiState.Loading) {
+                                CircularProgressIndicator(
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            } else {
+                                Text(
+                                    "Login",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
+                        }
+
+                        Text(
+                            text = "Create new account",
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .noRippleClickable { onNavigateToRegister() },
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Medium
+                            )
+                        )
+                    }
                 }
+            }
+
+            // Loading Overlay
+            if (uiState is LoginViewModel.UiState.Loading) {
+                LoadingOverlay(message = "Iniciando sesión...")
             }
 
             LaunchedEffect(uiState) {

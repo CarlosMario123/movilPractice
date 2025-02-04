@@ -2,14 +2,14 @@ package com.example.movil1.login.presentation
 
 import LoginRepository
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.movil1.core.storage.TokenManager
-import android.util.Log
-
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
@@ -23,8 +23,6 @@ class LoginViewModel(
         data class Success(val token: String) : UiState()
         data class Error(val message: String, val errors: List<String>? = null) : UiState()
     }
-
-
 
     private val _uiState = MutableLiveData<UiState>(UiState.Initial)
     val uiState: LiveData<UiState> = _uiState
@@ -56,6 +54,8 @@ class LoginViewModel(
             try {
                 _uiState.value = UiState.Loading
 
+                delay(1500) // Delay de 1.5 segundos
+
                 val email = _email.value ?: ""
                 val password = _password.value ?: ""
 
@@ -81,12 +81,9 @@ class LoginViewModel(
 
                 when (val result = loginRepository.login(email, password)) {
                     is LoginRepository.Result.Success -> {
-                        Log.d("LoginViewModel", "Respuesta exitosa del servidor") // <-- Nuevo log
-                        Log.d("LoginViewModel",result.data.toString())
                         result.data.access_token.let { token ->
-                            Log.d("LoginViewModel", "Token recibido: $token")  // <-- Nuevo log
                             tokenManager.saveToken(token)
-                            Log.d("LoginViewModel", "Token guardado en TokenManager")  // <-- Nuevo log
+                            Log.d("LoginViewModel", "Token guardado en TokenManager")
                             _uiState.value = UiState.Success(token)
                             clearFields()
                         }
@@ -97,14 +94,10 @@ class LoginViewModel(
                             errors = result.errors
                         )
                     }
-
                     is LoginRepository.Result.Error.NetworkError -> {
                         _uiState.value = UiState.Error(
                             message = "Error de conexión: ${result.message}"
                         )
-                        Log.e("LoginViewModel", "NetworkError: ${result.message}")
-                        Log.e("LoginViewModel", "NetworkError: ${result.message}")
-
 
                     }
                     is LoginRepository.Result.Error.ServerError -> {
