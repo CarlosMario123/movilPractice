@@ -4,6 +4,7 @@ import com.example.movil1.core.storage.TokenManager
 import com.example.movil1.login.data.datasource.LoginApi
 import com.example.movil1.register.data.datasource.RegisterApi
 import com.example.movil1.taskCreate.data.datasource.TaskApiCreate
+import com.example.movil1.taskList.data.datasource.TaskDeleteApi
 import com.example.movil1.taskList.data.datasource.TaskListApi
 
 import okhttp3.Interceptor
@@ -56,4 +57,8 @@ object RetrofitHelper {
 
     fun getTaskListApi(tokenManager: TokenManager): TaskListApi =
         createAuthenticatedRetrofit(tokenManager).create(TaskListApi::class.java)
+
+    fun getTaskDeleteApi(tokenManager: TokenManager): TaskDeleteApi {
+        return createAuthenticatedRetrofit(tokenManager).create(TaskDeleteApi::class.java)
+    }
 }

@@ -1,18 +1,14 @@
-package com.example.movil1.taskList.data.repository
+package com.example.movil1.taskDelete.data.repository
 
-import android.util.Log
 import com.example.movil1.core.network.RetrofitHelper
 import com.example.movil1.core.storage.TokenManager
-import com.example.movil1.taskList.data.mapper.TaskListMapper
-import com.example.movil1.taskList.data.models.TaskListDto
-import com.example.movil1.taskList.data.models.TaskListResponse
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
 
-class TaskListRepository(private val tokenManager: TokenManager) {
-    private val taskListApi = RetrofitHelper.getTaskListApi(tokenManager)
+class TaskDeleteRepository(private val tokenManager: TokenManager) {
+    private val taskDeleteApi = RetrofitHelper.getTaskDeleteApi(tokenManager)
     private val gson = Gson()
 
     sealed class Result<out T> {
@@ -29,13 +25,11 @@ class TaskListRepository(private val tokenManager: TokenManager) {
         val errors: List<String>? = null
     )
 
-    suspend fun getTasks(): Result<List<TaskListDto>> {
+    suspend fun deleteTask(taskId: Int): Result<Unit> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = taskListApi.getTasks()
-                handleApiResponse<List<TaskListResponse>, List<TaskListDto>>(response) { tasks ->
-                    tasks.map { TaskListMapper.mapToDto(it) }
-                }
+                val response = taskDeleteApi.deleteTask(taskId)
+                handleApiResponse(response) { }
             } catch (e: Exception) {
                 Result.Error.NetworkError("Error de red: ${e.message}")
             }
@@ -48,17 +42,12 @@ class TaskListRepository(private val tokenManager: TokenManager) {
     ): Result<R> {
         return when (response.code()) {
             in 200..299 -> {
-                response.body()?.let {
-                    Result.Success(transform(it))
-                } ?: Result.Error.ServerError(500, "Respuesta vacía del servidor")
-            }
-            307 -> {
-                val newUrl = response.headers()["Location"]
-                if (newUrl != null) {
-                    Result.Error.NetworkError("Recurso movido temporalmente a: $newUrl")
-
+                if (response.code() == 204) {
+                    Result.Success(Unit as R)
                 } else {
-                    Result.Error.ServerError(307, "Redirección sin ubicación proporcionada")
+                    response.body()?.let {
+                        Result.Success(transform(it))
+                    } ?: Result.Error.ServerError(500, "Respuesta vacía del servidor")
                 }
             }
             400 -> {
@@ -70,7 +59,10 @@ class TaskListRepository(private val tokenManager: TokenManager) {
                         errors = errorResponse.errors
                     )
                 } catch (e: Exception) {
-                    Result.Error.BadRequest("Error en la solicitud")
+                    Result.Error.BadRequest(
+                        message = "Error en la solicitud",
+                        errors = null
+                    )
                 }
             }
             in 401..499 -> {
@@ -87,5 +79,4 @@ class TaskListRepository(private val tokenManager: TokenManager) {
             }
         }
     }
-
 }

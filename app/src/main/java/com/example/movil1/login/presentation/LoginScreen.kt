@@ -88,7 +88,7 @@ fun LoginScreen(
                         verticalArrangement = Arrangement.spacedBy(24.dp)
                     ) {
                         Text(
-                            text = "Welcome",
+                            text = "TaskApp",
                             style = MaterialTheme.typography.headlineMedium,
                             color = MaterialTheme.colorScheme.secondary,
                             fontSize = 48.sp,
