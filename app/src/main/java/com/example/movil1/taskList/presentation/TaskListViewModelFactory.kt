@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.movil1.core.storage.TokenManager
+import com.example.movil1.core.utils.VibrationService
 import com.example.movil1.taskDelete.data.repository.TaskDeleteRepository
 import com.example.movil1.taskList.data.repository.TaskListRepository
 
@@ -15,8 +16,13 @@ class TaskListViewModelFactory(
             val tokenManager = TokenManager(context)
             val taskListRepository = TaskListRepository(tokenManager)
             val taskDeleteRepository = TaskDeleteRepository(tokenManager)
+            val vibrationService = VibrationService(context)
             @Suppress("UNCHECKED_CAST")
-            return TaskListViewModel(taskListRepository, taskDeleteRepository) as T
+            return TaskListViewModel(
+                taskListRepository,
+                taskDeleteRepository,
+                vibrationService
+            ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -5,14 +5,17 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.movil1.core.utils.VibrationService
 import com.example.movil1.taskList.data.repository.TaskListRepository
 import com.example.movil1.taskList.data.models.TaskListDto
 import com.example.movil1.taskDelete.data.repository.TaskDeleteRepository
+
 import kotlinx.coroutines.launch
 
 class TaskListViewModel(
     private val taskListRepository: TaskListRepository,
-    private val taskDeleteRepository: TaskDeleteRepository
+    private val taskDeleteRepository: TaskDeleteRepository,
+    private val vibrationService: VibrationService
 ) : ViewModel() {
 
     sealed class UiState {
@@ -74,7 +77,6 @@ class TaskListViewModel(
         }
     }
 
-    // En TaskListViewModel, modifica el método deleteTask:
     fun deleteTask(taskId: Int) {
         viewModelScope.launch {
             try {
@@ -83,6 +85,7 @@ class TaskListViewModel(
                 when (val result = taskDeleteRepository.deleteTask(taskId)) {
                     is TaskDeleteRepository.Result.Success -> {
                         _deleteTaskState.value = DeleteTaskState.Success
+                        vibrationService.vibrarPatron() // Vibración al eliminar exitosamente
                         Log.d("task","hizo el load")
                         loadTasks()
                     }
