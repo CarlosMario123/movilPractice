@@ -1,16 +1,14 @@
-import android.util.Log
-import com.example.movil1.core.network.RetrofitHelper
+import com.example.movil1.core.network.retrofit.RetrofitApis
 import com.example.movil1.login.data.mapper.LoginMapper
 import com.example.movil1.login.data.model.LoginDTO
 import com.example.movil1.login.data.model.LoginRequest
-import com.example.movil1.login.data.model.LoginResponse
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
 
 class LoginRepository {
-    private val loginApi = RetrofitHelper.getLoginApi()
+    private val loginApi = RetrofitApis.getLoginApi()
     private val gson = Gson()
 
     // Result wrapper for success and error cases

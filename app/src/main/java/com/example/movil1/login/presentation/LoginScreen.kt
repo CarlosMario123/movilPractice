@@ -177,7 +177,7 @@ fun LoginScreen(
                         ) {
                             if (uiState is LoginViewModel.UiState.Loading) {
                                 CircularProgressIndicator(
-                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    color = MaterialTheme.colorScheme.error,
                                     modifier = Modifier.size(24.dp)
                                 )
                             } else {
@@ -203,18 +203,12 @@ fun LoginScreen(
                 }
             }
 
-            // Loading Overlay
-            if (uiState is LoginViewModel.UiState.Loading) {
-                LoadingOverlay(message = "Iniciando sesión...")
-            }
 
             LaunchedEffect(uiState) {
                 when (uiState) {
                     is LoginViewModel.UiState.Success -> {
-                        snackbarHostState.showSnackbar(
-                            message = "Login exitoso"
-                        )
                         onLoginSuccess()
+
                     }
                     is LoginViewModel.UiState.Error -> {
                         snackbarHostState.showSnackbar(

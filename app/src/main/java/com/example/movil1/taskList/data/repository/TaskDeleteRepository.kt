@@ -1,6 +1,6 @@
 package com.example.movil1.taskDelete.data.repository
 
-import com.example.movil1.core.network.RetrofitHelper
+import com.example.movil1.core.network.retrofit.RetrofitApis
 import com.example.movil1.core.storage.TokenManager
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
@@ -8,7 +8,7 @@ import kotlinx.coroutines.withContext
 import retrofit2.Response
 
 class TaskDeleteRepository(private val tokenManager: TokenManager) {
-    private val taskDeleteApi = RetrofitHelper.getTaskDeleteApi(tokenManager)
+    private val taskDeleteApi = RetrofitApis.getTaskDeleteApi(tokenManager)
     private val gson = Gson()
 
     sealed class Result<out T> {

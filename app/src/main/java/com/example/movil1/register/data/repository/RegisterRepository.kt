@@ -1,6 +1,6 @@
 package com.example.movil1.register.data.repository
 
-import com.example.movil1.core.network.RetrofitHelper
+import com.example.movil1.core.network.retrofit.RetrofitApis
 import com.example.movil1.register.data.model.CreateUserRequest
 import com.example.movil1.register.data.model.UserDTO
 import com.google.gson.Gson
@@ -12,7 +12,7 @@ import retrofit2.Response
  * Repositorio que maneja las operaciones de registro de usuarios.
  */
 class RegisterRepository {
-    private val registerApi = RetrofitHelper.getRetrofit()
+    private val registerApi = RetrofitApis.getRetrofit()
     private val gson = Gson()
 
     sealed class Result<out T> {

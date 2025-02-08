@@ -1,6 +1,6 @@
 package com.example.movil1.taskCreate.data.repository
 
-import com.example.movil1.core.network.RetrofitHelper
+import com.example.movil1.core.network.retrofit.RetrofitApis
 import com.example.movil1.core.storage.TokenManager
 import com.example.movil1.taskCreate.data.mapper.TaskCreateMapper
 import com.example.movil1.taskCreate.data.models.CreateTaskRequest
@@ -12,7 +12,7 @@ import kotlinx.coroutines.withContext
 import retrofit2.Response
 
 class TaskCreateRepository(private val tokenManager: TokenManager) {
-    private val taskApi = RetrofitHelper.getTaskApi(tokenManager)
+    private val taskApi = RetrofitApis.getTaskApi(tokenManager)
     private val gson = Gson()
 
     sealed class Result<out T> {

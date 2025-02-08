@@ -1,7 +1,6 @@
 package com.example.movil1.taskList.data.repository
 
-import android.util.Log
-import com.example.movil1.core.network.RetrofitHelper
+import com.example.movil1.core.network.retrofit.RetrofitApis
 import com.example.movil1.core.storage.TokenManager
 import com.example.movil1.taskList.data.mapper.TaskListMapper
 import com.example.movil1.taskList.data.models.TaskListDto
@@ -12,7 +11,7 @@ import kotlinx.coroutines.withContext
 import retrofit2.Response
 
 class TaskListRepository(private val tokenManager: TokenManager) {
-    private val taskListApi = RetrofitHelper.getTaskListApi(tokenManager)
+    private val taskListApi = RetrofitApis.getTaskListApi(tokenManager)
     private val gson = Gson()
 
     sealed class Result<out T> {

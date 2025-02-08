@@ -83,7 +83,6 @@ class LoginViewModel(
                     is LoginRepository.Result.Success -> {
                         result.data.access_token.let { token ->
                             tokenManager.saveToken(token)
-                            Log.d("LoginViewModel", "Token guardado en TokenManager")
                             _uiState.value = UiState.Success(token)
                             clearFields()
                         }
